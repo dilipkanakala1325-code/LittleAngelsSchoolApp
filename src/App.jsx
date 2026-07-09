@@ -1,4 +1,3 @@
-console.log("THIS IS THE NEW APP");
 import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
 
 /* ---------------------------------------------------------
