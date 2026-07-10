@@ -750,12 +750,13 @@ function TeacherView({ user }) {
   async function saveAttendance() {
   const rec = { ...dayRecord };
   rec.periods = { ...rec.periods };
+
   rec.periods[activeSection] = {
     ...(rec.periods[activeSection] || {}),
     [activePeriod]: marks,
   };
 
-  // Existing save
+  // Save locally
   await saveDay(date, rec);
 
   // Save to Firebase
@@ -776,23 +777,6 @@ function TeacherView({ user }) {
   setDayRecord(rec);
   setSaved(true);
 }
-  }
-
-  async function toggleAbsentSelf() {
-    let rec = { ...dayRecord };
-    const set = new Set(rec.absentTeachers || []);
-    if (set.has(user.name)) {
-      set.delete(user.name);
-      rec.absentTeachers = Array.from(set);
-      rec = removeOffersForTeacher(rec, user.name);
-    } else {
-      set.add(user.name);
-      rec.absentTeachers = Array.from(set);
-      rec = generateOffersForAbsence(date, rec, user.name);
-    }
-    await saveDay(date, rec);
-    setDayRecord(rec);
-  }
 
   async function toggleMyPeriodOverride(p) {
     const current = effectiveStatus(date, p, user.name, dayRecord);
