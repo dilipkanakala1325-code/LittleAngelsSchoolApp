@@ -1,3 +1,6 @@
+import { db } from "./firebase";
+import { collection, addDoc, getDocs } from "firebase/firestore";
+console.log("THIS IS THE NEW APP");
 import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
 
 /* ---------------------------------------------------------
@@ -745,12 +748,34 @@ function TeacherView({ user }) {
   }
 
   async function saveAttendance() {
-    const rec = { ...dayRecord };
-    rec.periods = { ...rec.periods };
-    rec.periods[activeSection] = { ...(rec.periods[activeSection] || {}), [activePeriod]: marks };
-    await saveDay(date, rec);
-    setDayRecord(rec);
-    setSaved(true);
+  const rec = { ...dayRecord };
+  rec.periods = { ...rec.periods };
+  rec.periods[activeSection] = {
+    ...(rec.periods[activeSection] || {}),
+    [activePeriod]: marks,
+  };
+
+  // Existing save
+  await saveDay(date, rec);
+
+  // Save to Firebase
+  try {
+    await addDoc(collection(db, "attendance"), {
+      date: date,
+      section: activeSection,
+      period: activePeriod,
+      attendance: marks,
+      savedAt: new Date(),
+    });
+
+    console.log("Attendance saved to Firebase!");
+  } catch (error) {
+    console.error("Firebase Error:", error);
+  }
+
+  setDayRecord(rec);
+  setSaved(true);
+}
   }
 
   async function toggleAbsentSelf() {
